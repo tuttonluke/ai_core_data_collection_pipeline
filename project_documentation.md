@@ -4,4 +4,4 @@
 
 ## Milestone 1
 Technologies / Skills:
-- Web Scraping (HTML, BeautifulSoup, Selenium)
+- Web Scraping (HTML, BeautifulSoup, Selenium, uuid4)
