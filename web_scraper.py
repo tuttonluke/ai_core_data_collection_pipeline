@@ -34,10 +34,26 @@ class WaterstonesScraper:
         return self.driver
     
     def search(self, query) -> webdriver.Edge:
+        """Searches given query in website searchbar.
+
+        Parameters
+        ----------
+        query : str, int, float
+            Query to be searched.
+
+        Returns
+        -------
+        webdriver.Edge
+            This driver is already in the Waterstones webpage.
+
+        """
         search_bar = self.driver.find_element(by=By.XPATH, value="//input[@class='input input-search']")
         search_bar.click()
-        search_bar.send_keys(query)
-        search_bar.send_keys(Keys.RETURN)
+        try:
+            search_bar.send_keys(query)
+            search_bar.send_keys(Keys.RETURN)
+        except:
+            print('Invalid query input.')
 
         return self.driver
         
@@ -46,4 +62,5 @@ class WaterstonesScraper:
 if __name__ == "__main__":
     driver = WaterstonesScraper()
     driver.load_and_accept_cookies()
-    driver.search("José Saramago")
+    # driver.search("José Saramago")
+    driver.search(2)
