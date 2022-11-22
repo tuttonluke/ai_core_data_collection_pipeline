@@ -56,11 +56,24 @@ class WaterstonesScraper:
             print('Invalid query input.')
 
         return self.driver
-        
+    
+    def scroll_to_bottom(self) -> webdriver.Edge:
+        """Scrolls to the bottom of the current page.
+
+        Returns
+        -------
+        webdriver.Edge
+            This driver is already in the Waterstones webpage.
+        """
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+        return self.driver
 #%%
 
 if __name__ == "__main__":
     driver = WaterstonesScraper()
     driver.load_and_accept_cookies()
-    # driver.search("José Saramago")
-    driver.search(2)
+    driver.scroll_to_bottom()
+    driver.search("Jose Saramago")
+    
+   
