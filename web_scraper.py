@@ -107,6 +107,14 @@ class WaterstonesScraper:
     
 
     def get_all_book_links(self) -> webdriver.Chrome:
+        """Gathers all links for books in a search query in to class attribute 
+        link_list.
+
+        Returns
+        -------
+        webdriver.Chrome
+            This driver is already in the Waterstones webpage.
+        """
         book_container = self.driver.find_element(by=By.XPATH, value="//div[@class='search-results-list']")
         book_list = book_container.find_elements(by=By.XPATH, value="./div")
         for book in book_list:
