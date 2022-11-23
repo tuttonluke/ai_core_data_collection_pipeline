@@ -13,6 +13,7 @@ class WaterstonesScraper:
     """
     def __init__(self) -> None:
         self.driver = webdriver.Chrome()
+        self.link_list = []
 
     def load_and_accept_cookies(self) -> webdriver.Chrome:
         """Opens Waterstones website and accepts cookies.
@@ -104,13 +105,25 @@ class WaterstonesScraper:
             counter += 1
         return self.driver
     
+
+    def get_all_book_links(self) -> webdriver.Chrome:
+        book_container = self.driver.find_element(by=By.XPATH, value="//div[@class='search-results-list']")
+        book_list = book_container.find_elements(by=By.XPATH, value="./div")
+        for book in book_list:
+            a_tag = book.find_element(by=By.TAG_NAME, value='a')
+            link = a_tag.get_attribute('href')
+            self.link_list.append(link)
+
+        return self.driver
 #%%
 
 if __name__ == "__main__":
     driver = WaterstonesScraper()
     driver.load_and_accept_cookies()
-    driver.search("isabel allende")
+    # driver.search("isabel allende")
     # driver.search("gabriel garcia marquez")
-    # driver.search("Jose Saramago")
+    driver.search("Jose Saramago")
     driver.display_all_results()
+    time.sleep(2)
+    driver.get_all_book_links()
 #%%
