@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 import time
+import keyboard
 #%%
 class WaterstonesScraper:
     """_summary_
@@ -78,23 +79,38 @@ class WaterstonesScraper:
             This driver is already in the Waterstones webpage.
         """
         show_more = self.driver.find_element(by=By.XPATH, value="//button[@class='button button-teal']")
-        show_more.click()
+        if show_more.is_displayed():
+            show_more.click()
+        return self.driver
+    
+    def display_all_results(self) -> webdriver.Chrome:
+        """Loads all pages from a query result.
+
+        Returns
+        -------
+        webdriver.Chrome
+            This driver is already in the Waterstones webpage.
+        """
+        span = self.driver.find_element(by=By.XPATH, value="/html/body/div[1]/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/span[2]")
+        text = span.text
+        text = text.replace('of', '')
+        no_pages = int(text)
+        print(f"No. pages is {no_pages}.")
+        counter = 0
+        while counter <= no_pages:
+            self.scroll_to_bottom()
+            self.click_show_more()
+            time.sleep(2) # wait for next page of results to load
+            counter += 1
+        return self.driver
     
 #%%
 
 if __name__ == "__main__":
     driver = WaterstonesScraper()
     driver.load_and_accept_cookies()
-    driver.search("Jose Saramago")
-    time.sleep(2)
-    driver.scroll_to_bottom()
-    time.sleep(2)
-    driver.scroll_to_bottom()
-    time.sleep(2)
-    driver.scroll_to_bottom()
-    time.sleep(2)
-    driver.click_show_more()
+    driver.search("isabel allende")
+    # driver.search("gabriel garcia marquez")
+    # driver.search("Jose Saramago")
+    driver.display_all_results()
 #%%
-
-    
-   
