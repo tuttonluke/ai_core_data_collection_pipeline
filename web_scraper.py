@@ -6,13 +6,14 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 import time
-import keyboard
+import requests
 #%%
 class WaterstonesScraper:
     """_summary_
     """
-    def __init__(self) -> None:
+    def __init__(self, query) -> None:
         self.driver = webdriver.Chrome()
+        self.query = query
         self.link_list = []
 
     def load_and_accept_cookies(self) -> webdriver.Chrome:
@@ -35,7 +36,7 @@ class WaterstonesScraper:
         
         return self.driver
     
-    def search(self, query) -> webdriver.Chrome:
+    def search(self) -> webdriver.Chrome:
         """Searches given query in website searchbar.
 
         Parameters
@@ -52,7 +53,7 @@ class WaterstonesScraper:
         search_bar = self.driver.find_element(by=By.XPATH, value="//input[@class='input input-search']")
         search_bar.click()
         try:
-            search_bar.send_keys(query)
+            search_bar.send_keys(self.query)
             search_bar.send_keys(Keys.RETURN)
         except:
             print('Invalid query input.')
@@ -115,6 +116,10 @@ class WaterstonesScraper:
         webdriver.Chrome
             This driver is already in the Waterstones webpage.
         """
+        driver.load_and_accept_cookies()
+        driver.search()
+        driver.display_all_results()
+        time.sleep(2)
         book_container = self.driver.find_element(by=By.XPATH, value="//div[@class='search-results-list']")
         book_list = book_container.find_elements(by=By.XPATH, value="./div")
         for book in book_list:
@@ -123,15 +128,19 @@ class WaterstonesScraper:
             self.link_list.append(link)
 
         return self.driver
+    
+    def get_book_data(self):
+        for book_link in self.link_list:
+            self.driver.get(book_link)
+            time.sleep(2)
 #%%
 
 if __name__ == "__main__":
-    driver = WaterstonesScraper()
-    driver.load_and_accept_cookies()
-    # driver.search("isabel allende")
-    # driver.search("gabriel garcia marquez")
-    driver.search("Jose Saramago")
-    driver.display_all_results()
-    time.sleep(2)
+    driver = WaterstonesScraper("Jose Saramago")
+    # driver = WaterstonesScraper("gabriel garcia marquez")
+    # driver = WaterstonesScraper("isabel allende")
     driver.get_all_book_links()
+    driver.get_book_data()
 #%%
+
+
