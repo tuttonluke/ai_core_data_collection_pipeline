@@ -11,9 +11,9 @@ class WaterstonesScraper:
     """_summary_
     """
     def __init__(self) -> None:
-        self.driver = webdriver.Edge()
+        self.driver = webdriver.Chrome()
 
-    def load_and_accept_cookies(self) -> webdriver.Edge:
+    def load_and_accept_cookies(self) -> webdriver.Chrome:
         """Opens Waterstones website and accepts cookies.
 
         Returns
@@ -33,7 +33,7 @@ class WaterstonesScraper:
         
         return self.driver
     
-    def search(self, query) -> webdriver.Edge:
+    def search(self, query) -> webdriver.Chrome:
         """Searches given query in website searchbar.
 
         Parameters
@@ -57,7 +57,7 @@ class WaterstonesScraper:
 
         return self.driver
     
-    def scroll_to_bottom(self) -> webdriver.Edge:
+    def scroll_to_bottom(self) -> webdriver.Chrome:
         """Scrolls to the bottom of the current page.
 
         Returns
@@ -65,15 +65,36 @@ class WaterstonesScraper:
         webdriver.Edge
             This driver is already in the Waterstones webpage.
         """
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        self.driver.execute_script("document.getElementById('footer').scrollIntoView();")
 
         return self.driver
+    
+    def click_show_more(self) -> webdriver.Chrome:
+        """Clicks the show more button in search result page.
+
+        Returns
+        -------
+        webdriver.Chrome
+            This driver is already in the Waterstones webpage.
+        """
+        show_more = self.driver.find_element(by=By.XPATH, value="//button[@class='button button-teal']")
+        show_more.click()
+    
 #%%
 
 if __name__ == "__main__":
     driver = WaterstonesScraper()
     driver.load_and_accept_cookies()
-    driver.scroll_to_bottom()
     driver.search("Jose Saramago")
+    time.sleep(2)
+    driver.scroll_to_bottom()
+    time.sleep(2)
+    driver.scroll_to_bottom()
+    time.sleep(2)
+    driver.scroll_to_bottom()
+    time.sleep(2)
+    driver.click_show_more()
+#%%
+
     
    
