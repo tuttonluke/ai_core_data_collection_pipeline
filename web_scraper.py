@@ -15,7 +15,8 @@ class WaterstonesScraper:
         self.driver = webdriver.Chrome()
         self.query = query
         self.link_list = []
-        self.book_df = pd.DataFrame(columns=["Author", "Title"])
+        self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
+            "Price (£)", "Image_link"])
 
     def load_and_accept_cookies(self) -> webdriver.Chrome:
         """Opens Waterstones website and accepts cookies.
@@ -29,8 +30,10 @@ class WaterstonesScraper:
         delay = 10
         self.driver.get(URL)
         try:
-            WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, "//*[@id='onetrust-banner-sdk']")))
-            accept_cookies_button = self.driver.find_element(by=By.XPATH, value="//button[@id='onetrust-accept-btn-handler']")
+            WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, 
+                "//*[@id='onetrust-banner-sdk']")))
+            accept_cookies_button = self.driver.find_element(by=By.XPATH, 
+                value="//button[@id='onetrust-accept-btn-handler']")
             accept_cookies_button.click()
         except TimeoutException:
             print('Loading took too long.')
@@ -51,7 +54,8 @@ class WaterstonesScraper:
             This driver is already in the Waterstones webpage.
 
         """
-        search_bar = self.driver.find_element(by=By.XPATH, value="//input[@class='input input-search']")
+        search_bar = self.driver.find_element(by=By.XPATH, 
+            value="//input[@class='input input-search']")
         search_bar.click()
         try:
             search_bar.send_keys(self.query)
@@ -81,7 +85,8 @@ class WaterstonesScraper:
         webdriver.Chrome
             This driver is already in the Waterstones webpage.
         """
-        show_more = self.driver.find_element(by=By.XPATH, value="//button[@class='button button-teal']")
+        show_more = self.driver.find_element(by=By.XPATH, 
+            value="//button[@class='button button-teal']")
         if show_more.is_displayed():
             show_more.click()
         return self.driver
@@ -94,7 +99,8 @@ class WaterstonesScraper:
         webdriver.Chrome
             This driver is already in the Waterstones webpage.
         """
-        span = self.driver.find_element(by=By.XPATH, value="/html/body/div[1]/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/span[2]")
+        span = self.driver.find_element(by=By.XPATH, 
+            value="/html/body/div[1]/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/span[2]")
         text = span.text
         text = text.replace('of', '')
         no_pages = int(text)
@@ -117,11 +123,12 @@ class WaterstonesScraper:
         webdriver.Chrome
             This driver is already in the Waterstones webpage.
         """
-        driver.load_and_accept_cookies()
-        driver.search()
-        driver.display_all_results()
+        self.load_and_accept_cookies()
+        self.search()
+        self.display_all_results()
         time.sleep(2)
-        book_container = self.driver.find_element(by=By.XPATH, value="//div[@class='search-results-list']")
+        book_container = self.driver.find_element(by=By.XPATH, 
+            value="//div[@class='search-results-list']")
         book_list = book_container.find_elements(by=By.XPATH, value="./div")
         for book in book_list:
             a_tag = book.find_element(by=By.TAG_NAME, value='a')
@@ -130,7 +137,7 @@ class WaterstonesScraper:
 
         return self.driver
     
-    def get_author(self):
+    def get_author(self) -> str:
         """Srapes the author's name.
 
         Returns
@@ -138,10 +145,11 @@ class WaterstonesScraper:
         str
             Name of the author.
         """
-        author = self.driver.find_element(by=By.XPATH, value="//span[@itemprop='author']").text
+        author = self.driver.find_element(by=By.XPATH, 
+            value="//span[@itemprop='author']").text
         return author
 
-    def get_title(self):
+    def get_title(self) -> str:
         """Srapes the book title.
 
         Returns
@@ -149,22 +157,55 @@ class WaterstonesScraper:
         str
             Title of the book.
         """
-        title = self.driver.find_element(by=By.XPATH, value="//span[@class='book-title']").text
+        title = self.driver.find_element(by=By.XPATH, 
+            value="//span[@class='book-title']").text
         return title
+
+    def get_ISBN(self) -> int:
+        """Scrapes ISBN (International Standard Book Number), a unique product identifier
+        used by publishers and booksellers. The ISBN identifies the specific title,
+        edition, and format.
+
+        Returns
+        -------
+        int
+            ISBN number.
+        """
+        isbn = self.driver.current_url[-13:]
+        return int(isbn)
     
+    def get_price(self) -> float:
+        """Scrapes price in GBP.
+
+        Returns
+        -------
+        float
+            Item price.
+        """
+        price = self.driver.find_element(by=By.XPATH,
+            value="//b[@itemprop='price']").text
+        price = price.strip('£')
+        return float(price)
+
     def get_book_data(self):
-        for book_link in self.link_list:
+        for book_link in self.link_list[:3]:
             self.driver.get(book_link)
             author = self.get_author()
             title = self.get_title()
+            isbn = self.get_ISBN()
+            price = self.get_price()
             
-            book_dict = {"Author" : author, 
-                        "Title" : title
+            book_dict = {
+                        "ID" : isbn,
+                        "Timestamp" : time.ctime(),
+                        "Author" : author, 
+                        "Title" : title,
+                        "Price (£)" : price,
+                        #"Image_link" : image
                         }
             self.book_df = self.book_df.append(book_dict, ignore_index=True)
-        return book_df
+        return self.book_df
 #%%
-
 if __name__ == "__main__":
     driver = WaterstonesScraper("Jose Saramago")
     # driver = WaterstonesScraper("gabriel garcia marquez")
@@ -172,12 +213,4 @@ if __name__ == "__main__":
     driver.get_all_book_links()
     print(len(driver.link_list))
     df = driver.get_book_data()
-
-    # driver.quit()
 #%%
-
-book_df = pd.DataFrame(columns=["Author", "Title"])
-book_dict = {"Author" : "Jose Saramago", 
-                        "Title" : "Blindness"
-                        }
-
