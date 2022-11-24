@@ -7,6 +7,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
+import os
 #%%
 class WaterstonesScraper:
     """_summary_
@@ -134,6 +135,7 @@ class WaterstonesScraper:
             a_tag = book.find_element(by=By.TAG_NAME, value='a')
             link = a_tag.get_attribute('href')
             self.link_list.append(link)
+        print(f'Number of items is {len(self.link_list)}')
 
         return self.driver
     
@@ -209,7 +211,8 @@ class WaterstonesScraper:
         pd.DataFrame
             DataFrame of scraped data.
         """
-        for book_link in self.link_list[:3]:
+        self.get_all_book_links()
+        for book_link in self.link_list[:5]:
             self.driver.get(book_link)
             
             isbn = self.get_ISBN()
@@ -228,12 +231,20 @@ class WaterstonesScraper:
                         }
             self.book_df = self.book_df.append(book_dict, ignore_index=True)
         return self.book_df
+    
+    def save_df_as_csv(self):
+        """Saves data in a .csv file under the name of the author.
+        """
+        author = self.query.lower()
+        author = author.replace(' ', '_')
+        self.book_df.to_csv(f"raw_data/{author}.csv")
+    
 #%%
 if __name__ == "__main__":
     driver = WaterstonesScraper("Jose Saramago")
     # driver = WaterstonesScraper("gabriel garcia marquez")
     # driver = WaterstonesScraper("isabel allende")
-    driver.get_all_book_links()
-    print(len(driver.link_list))
     df = driver.get_book_data()
+    driver.save_df_as_csv()
 #%%
+
