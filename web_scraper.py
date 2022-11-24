@@ -233,18 +233,23 @@ class WaterstonesScraper:
         return self.book_df
     
     def save_df_as_csv(self):
-        """Saves data in a .csv file under the name of the author.
+        """Saves data in a .csv file under the name of the author, if the file does
+        not already exist.
         """
         author = self.query.lower()
         author = author.replace(' ', '_')
-        self.book_df.to_csv(f"raw_data/{author}.csv")
+        if not os.path.exists(f"raw_data/{author}"):
+            os.mkdir(f"raw_data/{author}")
+        self.book_df.to_csv(f"raw_data/{author}/{author}.csv")
     
+
 #%%
 if __name__ == "__main__":
-    driver = WaterstonesScraper("Jose Saramago")
+    driver = WaterstonesScraper("Isabel Allende")
     # driver = WaterstonesScraper("gabriel garcia marquez")
     # driver = WaterstonesScraper("isabel allende")
     df = driver.get_book_data()
     driver.save_df_as_csv()
 #%%
-
+#os.mkdir("raw_data/isabel_allende")
+df.to_csv("raw_data/jose_saramago/jose_saramago.csv")
