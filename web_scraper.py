@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.keys import Keys
 import time
-import requests
+import pandas as pd
 #%%
 class WaterstonesScraper:
     """_summary_
@@ -15,6 +15,7 @@ class WaterstonesScraper:
         self.driver = webdriver.Chrome()
         self.query = query
         self.link_list = []
+        self.book_df = pd.DataFrame(columns=["Author", "Title"])
 
     def load_and_accept_cookies(self) -> webdriver.Chrome:
         """Opens Waterstones website and accepts cookies.
@@ -102,7 +103,7 @@ class WaterstonesScraper:
         while counter <= no_pages:
             self.scroll_to_bottom()
             self.click_show_more()
-            time.sleep(2) # wait for next page of results to load
+            time.sleep(3) # wait for next page of results to load
             counter += 1
         return self.driver
     
@@ -129,10 +130,39 @@ class WaterstonesScraper:
 
         return self.driver
     
+    def get_author(self):
+        """Srapes the author's name.
+
+        Returns
+        -------
+        str
+            Name of the author.
+        """
+        author = self.driver.find_element(by=By.XPATH, value="//span[@itemprop='author']").text
+        return author
+
+    def get_title(self):
+        """Srapes the book title.
+
+        Returns
+        -------
+        str
+            Title of the book.
+        """
+        title = self.driver.find_element(by=By.XPATH, value="//span[@class='book-title']").text
+        return title
+    
     def get_book_data(self):
         for book_link in self.link_list:
             self.driver.get(book_link)
-            time.sleep(2)
+            author = self.get_author()
+            title = self.get_title()
+            
+            book_dict = {"Author" : author, 
+                        "Title" : title
+                        }
+            self.book_df = self.book_df.append(book_dict, ignore_index=True)
+        return book_df
 #%%
 
 if __name__ == "__main__":
@@ -140,7 +170,14 @@ if __name__ == "__main__":
     # driver = WaterstonesScraper("gabriel garcia marquez")
     # driver = WaterstonesScraper("isabel allende")
     driver.get_all_book_links()
-    driver.get_book_data()
+    print(len(driver.link_list))
+    df = driver.get_book_data()
+
+    # driver.quit()
 #%%
 
+book_df = pd.DataFrame(columns=["Author", "Title"])
+book_dict = {"Author" : "Jose Saramago", 
+                        "Title" : "Blindness"
+                        }
 
