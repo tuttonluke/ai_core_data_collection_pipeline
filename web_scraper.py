@@ -186,22 +186,45 @@ class WaterstonesScraper:
             value="//b[@itemprop='price']").text
         price = price.strip('£')
         return float(price)
+    
+    def get_image_link(self) -> str:
+        """Scrapes links for book images.
 
-    def get_book_data(self):
+        Returns
+        -------
+        str
+            Source of image link.
+        """
+        img = self.driver.find_element(by=By.XPATH,
+            value="//img[@itemprop='image']")
+        img_src = img.get_attribute("src")
+        return img_src
+
+    def get_book_data(self) -> pd.DataFrame:
+        """Calls methods to scrape ISBN ID, author's name, book title, price in GBP,
+        and book image source link. Stores data in DataFrame. 
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of scraped data.
+        """
         for book_link in self.link_list[:3]:
             self.driver.get(book_link)
+            
+            isbn = self.get_ISBN()
             author = self.get_author()
             title = self.get_title()
-            isbn = self.get_ISBN()
             price = self.get_price()
+            image = self.get_image_link()
             
             book_dict = {
                         "ID" : isbn,
-                        "Timestamp" : time.ctime(),
+                        "Timestamp" : time.ctime(), # timestamp of scraping.
                         "Author" : author, 
                         "Title" : title,
                         "Price (£)" : price,
-                        #"Image_link" : image
+                        "Image_link" : image
                         }
             self.book_df = self.book_df.append(book_dict, ignore_index=True)
         return self.book_df
