@@ -8,13 +8,14 @@ from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
 import os
+import requests
 #%%
 class WaterstonesScraper:
     """_summary_
     """
     def __init__(self, query) -> None:
         self.driver = webdriver.Chrome()
-        self.query = query
+        self.query = query.replace(' ', '_').lower()
         self.link_list = []
         self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
             "Price (£)", "Image_link"])
@@ -105,7 +106,7 @@ class WaterstonesScraper:
         text = span.text
         text = text.replace('of', '')
         no_pages = int(text)
-        print(f"No. pages is {no_pages}.")
+        print(f"Number of pages is {no_pages}.")
         counter = 0
         while counter <= no_pages:
             self.scroll_to_bottom()
@@ -135,7 +136,7 @@ class WaterstonesScraper:
             a_tag = book.find_element(by=By.TAG_NAME, value='a')
             link = a_tag.get_attribute('href')
             self.link_list.append(link)
-        print(f'Number of items is {len(self.link_list)}')
+        print(f'Number of items is {len(self.link_list)}.')
 
         return self.driver
     
@@ -212,7 +213,7 @@ class WaterstonesScraper:
             DataFrame of scraped data.
         """
         self.get_all_book_links()
-        for book_link in self.link_list[:5]:
+        for book_link in self.link_list:
             self.driver.get(book_link)
             
             isbn = self.get_ISBN()
@@ -232,24 +233,44 @@ class WaterstonesScraper:
             self.book_df = self.book_df.append(book_dict, ignore_index=True)
         return self.book_df
     
+    def download_img(self, img_url, file_path):
+        """Downloads image.
+
+        Parameters
+        ----------
+        img_url : str
+            URL of image to be downnloaded.
+        file_path : str
+            File path of location where the image is to be saved.
+        """
+        img_data = requests.get(img_url).content
+        with open(file_path, "wb") as handler:
+            handler.write(img_data)
+    
     def save_df_as_csv(self):
         """Saves data in a .csv file under the name of the author, if the file does
         not already exist.
         """
-        author = self.query.lower()
-        author = author.replace(' ', '_')
-        if not os.path.exists(f"raw_data/{author}"):
-            os.mkdir(f"raw_data/{author}")
-        self.book_df.to_csv(f"raw_data/{author}/{author}.csv")
+        if not os.path.exists(f"raw_data/{self.query}"):
+            os.mkdir(f"raw_data/{self.query}")
+        self.book_df.to_csv(f"raw_data/{self.query}/{self.query}.csv")
+
+    def save_book_data(self):
+        """Save DataFrame in csv file and save images in images folder. 
+        """
+        self.save_df_as_csv()
+        os.mkdir(f"raw_data/{self.query}/images")
+        for img_url in self.book_df["Image_link"]:
+            isbn = img_url[-17:-4]
+            self.download_img(img_url, f"raw_data/{self.query}/images/{isbn}.jpg")
+
     
 
 #%%
 if __name__ == "__main__":
-    driver = WaterstonesScraper("Isabel Allende")
+    # driver = WaterstonesScraper("jose saramago")
     # driver = WaterstonesScraper("gabriel garcia marquez")
-    # driver = WaterstonesScraper("isabel allende")
+    driver = WaterstonesScraper("isabel allende")
     df = driver.get_book_data()
-    driver.save_df_as_csv()
+    driver.save_book_data()
 #%%
-#os.mkdir("raw_data/isabel_allende")
-df.to_csv("raw_data/jose_saramago/jose_saramago.csv")
