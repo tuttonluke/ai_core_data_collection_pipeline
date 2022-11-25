@@ -15,12 +15,12 @@ class WaterstonesScraper:
     """
     def __init__(self, query) -> None:
         self.driver = webdriver.Chrome()
-        self.query = query.replace(' ', '_').lower()
+        self.__query = query.replace(' ', '_').lower()
         self.link_list = []
         self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
             "Price (£)", "Image_link"])
 
-    def load_and_accept_cookies(self) -> webdriver.Chrome:
+    def __load_and_accept_cookies(self) -> webdriver.Chrome:
         """Opens Waterstones website and accepts cookies.
 
         Returns
@@ -42,7 +42,7 @@ class WaterstonesScraper:
         
         return self.driver
     
-    def search(self) -> webdriver.Chrome:
+    def __search(self) -> webdriver.Chrome:
         """Searches given query in website searchbar.
 
         Parameters
@@ -60,14 +60,14 @@ class WaterstonesScraper:
             value="//input[@class='input input-search']")
         search_bar.click()
         try:
-            search_bar.send_keys(self.query)
+            search_bar.send_keys(self.__query)
             search_bar.send_keys(Keys.RETURN)
         except:
             print('Invalid query input.')
 
         return self.driver
     
-    def scroll_to_bottom(self) -> webdriver.Chrome:
+    def __scroll_to_bottom(self) -> webdriver.Chrome:
         """Scrolls to the bottom of the current page.
 
         Returns
@@ -79,7 +79,7 @@ class WaterstonesScraper:
 
         return self.driver
     
-    def click_show_more(self) -> webdriver.Chrome:
+    def __click_show_more(self) -> webdriver.Chrome:
         """Clicks the show more button in search result page.
 
         Returns
@@ -91,9 +91,10 @@ class WaterstonesScraper:
             value="//button[@class='button button-teal']")
         if show_more.is_displayed():
             show_more.click()
+
         return self.driver
     
-    def display_all_results(self) -> webdriver.Chrome:
+    def __display_all_results(self) -> webdriver.Chrome:
         """Loads all pages from a query result.
 
         Returns
@@ -109,14 +110,14 @@ class WaterstonesScraper:
         print(f"Number of pages is {no_pages}.")
         counter = 0
         while counter <= no_pages:
-            self.scroll_to_bottom()
-            self.click_show_more()
+            self.__scroll_to_bottom()
+            self.__click_show_more()
             time.sleep(3) # wait for next page of results to load
             counter += 1
+
         return self.driver
     
-
-    def get_all_book_links(self) -> webdriver.Chrome:
+    def __get_all_book_links(self) -> webdriver.Chrome:
         """Gathers all links for books in a search query in to class attribute 
         link_list.
 
@@ -125,9 +126,9 @@ class WaterstonesScraper:
         webdriver.Chrome
             This driver is already in the Waterstones webpage.
         """
-        self.load_and_accept_cookies()
-        self.search()
-        self.display_all_results()
+        self.__load_and_accept_cookies()
+        self.__search()
+        self.__display_all_results()
         time.sleep(2)
         book_container = self.driver.find_element(by=By.XPATH, 
             value="//div[@class='search-results-list']")
@@ -140,7 +141,7 @@ class WaterstonesScraper:
 
         return self.driver
     
-    def get_author(self) -> str:
+    def __get_author(self) -> str:
         """Srapes the author's name.
 
         Returns
@@ -150,9 +151,10 @@ class WaterstonesScraper:
         """
         author = self.driver.find_element(by=By.XPATH, 
             value="//span[@itemprop='author']").text
+
         return author
 
-    def get_title(self) -> str:
+    def __get_title(self) -> str:
         """Srapes the book title.
 
         Returns
@@ -162,9 +164,10 @@ class WaterstonesScraper:
         """
         title = self.driver.find_element(by=By.XPATH, 
             value="//span[@class='book-title']").text
+
         return title
 
-    def get_ISBN(self) -> int:
+    def __get_ISBN(self) -> int:
         """Scrapes ISBN (International Standard Book Number), a unique product identifier
         used by publishers and booksellers. The ISBN identifies the specific title,
         edition, and format.
@@ -175,9 +178,10 @@ class WaterstonesScraper:
             ISBN number.
         """
         isbn = self.driver.current_url[-13:]
+
         return int(isbn)
     
-    def get_price(self) -> float:
+    def __get_price(self) -> float:
         """Scrapes price in GBP.
 
         Returns
@@ -188,9 +192,10 @@ class WaterstonesScraper:
         price = self.driver.find_element(by=By.XPATH,
             value="//b[@itemprop='price']").text
         price = price.strip('£')
+
         return float(price)
     
-    def get_image_link(self) -> str:
+    def __get_image_link(self) -> str:
         """Scrapes links for book images.
 
         Returns
@@ -201,39 +206,10 @@ class WaterstonesScraper:
         img = self.driver.find_element(by=By.XPATH,
             value="//img[@itemprop='image']")
         img_src = img.get_attribute("src")
+
         return img_src
-
-    def get_book_data(self) -> pd.DataFrame:
-        """Calls methods to scrape ISBN ID, author's name, book title, price in GBP,
-        and book image source link. Stores data in DataFrame. 
-
-        Returns
-        -------
-        pd.DataFrame
-            DataFrame of scraped data.
-        """
-        self.get_all_book_links()
-        for book_link in self.link_list:
-            self.driver.get(book_link)
-            
-            isbn = self.get_ISBN()
-            author = self.get_author()
-            title = self.get_title()
-            price = self.get_price()
-            image = self.get_image_link()
-            
-            book_dict = {
-                        "ID" : isbn,
-                        "Timestamp" : time.ctime(), # timestamp of scraping.
-                        "Author" : author, 
-                        "Title" : title,
-                        "Price (£)" : price,
-                        "Image_link" : image
-                        }
-            self.book_df = self.book_df.append(book_dict, ignore_index=True)
-        return self.book_df
     
-    def download_img(self, img_url, file_path):
+    def __download_img(self, img_url, file_path):
         """Downloads image.
 
         Parameters
@@ -247,30 +223,61 @@ class WaterstonesScraper:
         with open(file_path, "wb") as handler:
             handler.write(img_data)
     
-    def save_df_as_csv(self):
+    def __save_df_as_csv(self):
         """Saves data in a .csv file under the name of the author, if the file does
         not already exist.
         """
-        if not os.path.exists(f"raw_data/{self.query}"):
-            os.mkdir(f"raw_data/{self.query}")
-        self.book_df.to_csv(f"raw_data/{self.query}/{self.query}.csv")
+        if not os.path.exists(f"raw_data/{self.__query}"):
+            os.mkdir(f"raw_data/{self.__query}")
+        self.book_df.to_csv(f"raw_data/{self.__query}/{self.__query}.csv")
+
+    def get_book_data(self) -> pd.DataFrame:
+        """Calls methods to scrape ISBN ID, author's name, book title, price in GBP,
+        and book image source link. Stores data in DataFrame. 
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame of scraped data.
+        """
+        self.__get_all_book_links()
+        for book_link in self.link_list:
+            self.driver.get(book_link)
+            
+            isbn = self.__get_ISBN()
+            author = self.__get_author()
+            title = self.__get_title()
+            price = self.__get_price()
+            image = self.__get_image_link()
+            
+            book_dict = {
+                        "ID" : isbn,
+                        "Timestamp" : time.ctime(), # timestamp of scraping.
+                        "Author" : author, 
+                        "Title" : title,
+                        "Price (£)" : price,
+                        "Image_link" : image
+                        }
+            self.book_df = self.book_df.append(book_dict, ignore_index=True)
+
+        return self.book_df
 
     def save_book_data(self):
         """Save DataFrame in csv file and save images in images folder. 
         """
-        self.save_df_as_csv()
-        os.mkdir(f"raw_data/{self.query}/images")
+        self.__save_df_as_csv()
+        os.mkdir(f"raw_data/{self.__query}/images")
         for img_url in self.book_df["Image_link"]:
             isbn = img_url[-17:-4]
-            self.download_img(img_url, f"raw_data/{self.query}/images/{isbn}.jpg")
+            self.__download_img(img_url, f"raw_data/{self.__query}/images/{isbn}.jpg")
 
     
 
 #%%
 if __name__ == "__main__":
-    # driver = WaterstonesScraper("jose saramago")
+    driver = WaterstonesScraper("jose saramago")
     # driver = WaterstonesScraper("gabriel garcia marquez")
-    driver = WaterstonesScraper("isabel allende")
+    # driver = WaterstonesScraper("isabel allende")
     df = driver.get_book_data()
     driver.save_book_data()
 #%%
