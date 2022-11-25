@@ -2,8 +2,15 @@
 
 (brief description of the project)
 
-## Milestone 1
+## Milestone 1: Setting Up a Web Scraper with Selenium
 Technologies / Skills:
 - Web Scraping (HTML, BeautifulSoup, Selenium, uuid)
 
 I love books and romance languages, so I decided to scrape data of Spanish and Portuguese language authors from the website of popular British bookseller Waterstones. A webscraping class WaterstonesScraper was built using Selenium to drive the chrome browser. Methods of this class include those to load the page, accept cookies, navigate a search query, and scrape links for all books from the given query.
+
+## Milestone 2: Developing the Selenium Web Scraper
+Technologies / Skills:
+- Advanced Selenium, Pandas, Os
+
+Further methods for scraping key data from the Waterstones website were developed, including author name, book title, unique identifying number, and front cover images. The data was then systematically saved in a pandas DataFrame and .csv file, as well as downloaded image files of the front covers.
+
