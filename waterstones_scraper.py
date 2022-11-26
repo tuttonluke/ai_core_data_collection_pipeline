@@ -55,6 +55,11 @@ class WaterstonesScraper:
         
         return self.driver
     
+    def quit_browser(self):
+        """Quits the browser.
+        """
+        self.driver.quit()
+    
     def __search(self) -> webdriver.Edge:
         """Searches given query in website searchbar.
 
@@ -297,4 +302,6 @@ if __name__ == "__main__":
         driver.save_book_data()
     except:
         print("Invalid query.")
+        driver.quit_browser()
+        
 #%%
