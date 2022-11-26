@@ -11,16 +11,29 @@ import os
 import requests
 #%%
 class WaterstonesScraper:
-    """_summary_
+    """This class generates a web scraper to scrape key data from the
+    popular bookseller Waterstone's website, based on a query entered
+    by the user. 
     """
     def __init__(self, query) -> None:
-        self.driver = webdriver.Chrome()
-        self.__query = query.replace(' ', '_').lower()
-        self.link_list = []
-        self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
-            "Price (£)", "Image_link"])
+        """Initialises the class.
 
-    def __load_and_accept_cookies(self) -> webdriver.Chrome:
+        Parameters
+        ----------
+        query : str
+            Query to search in the Waterstones website. Data will then
+            be scraped from all search results.
+        """
+        try:
+            self.driver = webdriver.Edge()
+            self.__query = query.replace(' ', '_').lower()
+            self.link_list = []
+            self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
+                "Price (£)", "Image_link"])
+        except:
+            print("Query must be a string.")
+
+    def __load_and_accept_cookies(self) -> webdriver.Edge:
         """Opens Waterstones website and accepts cookies.
 
         Returns
@@ -42,7 +55,7 @@ class WaterstonesScraper:
         
         return self.driver
     
-    def __search(self) -> webdriver.Chrome:
+    def __search(self) -> webdriver.Edge:
         """Searches given query in website searchbar.
 
         Parameters
@@ -60,14 +73,14 @@ class WaterstonesScraper:
             value="//input[@class='input input-search']")
         search_bar.click()
         try:
-            search_bar.send_keys(self.__query)
+            search_bar.send_keys(self.__query.replace('_', ' '))
             search_bar.send_keys(Keys.RETURN)
         except:
             print('Invalid query input.')
 
         return self.driver
     
-    def __scroll_to_bottom(self) -> webdriver.Chrome:
+    def __scroll_to_bottom(self) -> webdriver.Edge:
         """Scrolls to the bottom of the current page.
 
         Returns
@@ -79,12 +92,12 @@ class WaterstonesScraper:
 
         return self.driver
     
-    def __click_show_more(self) -> webdriver.Chrome:
+    def __click_show_more(self) -> webdriver.Edge:
         """Clicks the show more button in search result page.
 
         Returns
         -------
-        webdriver.Chrome
+        webdriver.Edge
             This driver is already in the Waterstones webpage.
         """
         show_more = self.driver.find_element(by=By.XPATH, 
@@ -94,12 +107,12 @@ class WaterstonesScraper:
 
         return self.driver
     
-    def __display_all_results(self) -> webdriver.Chrome:
+    def __display_all_results(self) -> webdriver.Edge:
         """Loads all pages from a query result.
 
         Returns
         -------
-        webdriver.Chrome
+        webdriver.Edge
             This driver is already in the Waterstones webpage.
         """
         span = self.driver.find_element(by=By.XPATH, 
@@ -112,18 +125,18 @@ class WaterstonesScraper:
         while counter <= no_pages:
             self.__scroll_to_bottom()
             self.__click_show_more()
-            time.sleep(3) # wait for next page of results to load
+            time.sleep(2) # wait for next page of results to load
             counter += 1
 
         return self.driver
     
-    def __get_all_book_links(self) -> webdriver.Chrome:
+    def __get_all_book_links(self) -> webdriver.Edge:
         """Gathers all links for books in a search query in to class attribute 
         link_list.
 
         Returns
         -------
-        webdriver.Chrome
+        webdriver.Edge
             This driver is already in the Waterstones webpage.
         """
         self.__load_and_accept_cookies()
@@ -241,7 +254,7 @@ class WaterstonesScraper:
             DataFrame of scraped data.
         """
         self.__get_all_book_links()
-        for book_link in self.link_list:
+        for book_link in self.link_list[:3]:
             self.driver.get(book_link)
             
             isbn = self.__get_ISBN()
@@ -275,9 +288,13 @@ class WaterstonesScraper:
 
 #%%
 if __name__ == "__main__":
-    driver = WaterstonesScraper("jose saramago")
+    # driver = WaterstonesScraper("jose saramago")
     # driver = WaterstonesScraper("gabriel garcia marquez")
     # driver = WaterstonesScraper("isabel allende")
-    df = driver.get_book_data()
-    driver.save_book_data()
+    driver = WaterstonesScraper(2)
+    try:
+        df = driver.get_book_data()
+        driver.save_book_data()
+    except:
+        print("Invalid query.")
 #%%
