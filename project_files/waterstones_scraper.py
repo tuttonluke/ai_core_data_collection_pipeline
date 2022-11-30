@@ -23,10 +23,24 @@ class WaterstonesScraper:
         query : str
             Query to search in the Waterstones website. Data will then
             be scraped from all search results.
+        
+        Attributes
+        ----------
+        driver : webdriver.Edge
+                 Instance of the Edge webdriver.
+        __query : str
+                  Query to be searched.
+        __raw_data_path : str
+                          File path in which to save raw data.
+        link_list : lst
+                    List of links of query results.
+        book_df : DataFrame
+                  Dataframe of query result data. 
         """
         try:
             self.driver = webdriver.Edge()
             self.__query = query.replace(' ', '_').lower()
+            self.__raw_data_path = r"C:\Users\tutto\OneDrive\Documents\Documents\AiCore\Projects\ai_core_data_collection_pipeline\project_files\raw_data"
             self.link_list = []
             self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
                 "Price (£)", "Image_link"])
@@ -245,9 +259,9 @@ class WaterstonesScraper:
         """Saves data in a .csv file under the name of the author, if the file does
         not already exist.
         """
-        if not os.path.exists(f"raw_data/{self.__query}"):
-            os.mkdir(f"raw_data/{self.__query}")
-        self.book_df.to_csv(f"raw_data/{self.__query}/{self.__query}.csv")
+        if not os.path.exists(f"{self.__raw_data_path}/{self.__query}"):
+            os.mkdir(f"{self.__raw_data_path}/{self.__query}")
+        self.book_df.to_csv(f"{self.__raw_data_path}/{self.__query}/{self.__query}.csv")
 
     def get_book_data(self) -> pd.DataFrame:
         """Calls methods to scrape ISBN ID, author's name, book title, price in GBP,
@@ -284,24 +298,25 @@ class WaterstonesScraper:
         """Save DataFrame in csv file and save images in images folder. 
         """
         self.__save_df_as_csv()
-        os.mkdir(f"raw_data/{self.__query}/images")
+        os.mkdir(f"{self.__raw_data_path}/{self.__query}/images")
         for img_url in self.book_df["Image_link"]:
             isbn = img_url[-17:-4]
-            self.__download_img(img_url, f"raw_data/{self.__query}/images/{isbn}.jpg")
+            self.__download_img(img_url, f"{self.__raw_data_path}/{self.__query}/images/{isbn}.jpg")
 
     
 
 #%%
 if __name__ == "__main__":
-    # driver = WaterstonesScraper("jose saramago")
+    driver = WaterstonesScraper("jose saramago")
     # driver = WaterstonesScraper("gabriel garcia marquez")
     # driver = WaterstonesScraper("isabel allende")
-    driver = WaterstonesScraper(2)
+    # driver = WaterstonesScraper(2)
+
     try:
         df = driver.get_book_data()
         driver.save_book_data()
-    except:
-        print("Invalid query.")
+    except Exception:
+        print(Exception)
         driver.quit_browser()
         
 #%%
