@@ -22,4 +22,7 @@ Further methods for scraping key data from the Waterstones website were develope
 
 ## Milestone 3: Documentation and Testing
 Technologies / Skills:
-- Abstraction, Encapsulation, 
+- Abstraction & Encapsulation in OOP
+- System, Integration, and Unit Testing
+    - unittest
+- Project Structure for Software Development
