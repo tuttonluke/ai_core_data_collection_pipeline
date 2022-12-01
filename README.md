@@ -4,6 +4,8 @@
 
 (How to implement)
 
+(Add screenshots)
+
 # Project Documentation
 
 (brief description of the project)
@@ -25,4 +27,7 @@ Technologies / Skills:
 - Abstraction & Encapsulation in OOP
 - System, Integration, and Unit Testing
     - unittest
+    - pandas.testing
 - Project Structure for Software Development
+
+Unit testing of public methods of the WaterstonesScraper class was implemented using the python unittest framework. The get_book_data method of the WaterstonesScraper class returns scraped data in the form of a pandas DataFrame, so the pandas inbuilt testing framework was also used.
