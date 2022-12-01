@@ -5,10 +5,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import pandas as pd
-import time
 import os
+import pandas as pd
 import requests
+import time
 #%%
 class WaterstonesScraper:
     """This class generates a web scraper to scrape key data from the
@@ -241,8 +241,8 @@ class WaterstonesScraper:
 
         return img_src
     
-    def __download_img(self, img_url, file_path):
-        """Downloads image.
+    def __download_img(self, img_url: str, file_path: str):
+        """Downloads image to current directory.
 
         Parameters
         ----------
@@ -256,7 +256,7 @@ class WaterstonesScraper:
             handler.write(img_data)
     
     def __save_df_as_csv(self):
-        """Saves data in a .csv file under the name of the author, if the file does
+        """Saves data in a .csv file under the name of the author, creating a new file if one does
         not already exist.
         """
         if not os.path.exists(f"{self.__raw_data_path}/{self.__query}"):
@@ -276,13 +276,11 @@ class WaterstonesScraper:
         index = 0
         for book_link in self.link_list[:3]:
             self.driver.get(book_link)
-            
             isbn = self.__get_ISBN()
             author = self.__get_author()
             title = self.__get_title()
             price = self.__get_price()
             image = self.__get_image_link()
-            
             book_dict = {
                         "ID" : isbn,
                         "Timestamp" : time.ctime(), # timestamp of scraping.
