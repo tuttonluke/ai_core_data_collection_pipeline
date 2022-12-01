@@ -32,8 +32,10 @@ class WaterstonesScraper:
                   Query to be searched.
         __raw_data_path : str
                           File path in which to save raw data.
-        link_list : lst
+        link_list : list
                     List of links of query results.
+        language_link_list : list
+                            List of links of language-filtered pages of query results.
         book_df : DataFrame
                   Dataframe of query result data. 
         """
@@ -42,6 +44,7 @@ class WaterstonesScraper:
             self.__query = query.replace(' ', '_').lower()
             self.__raw_data_path = r"C:\Users\tutto\OneDrive\Documents\Documents\AiCore\Projects\ai_core_data_collection_pipeline\project_files\raw_data"
             self.link_list = []
+            self.language_link_list = []
             self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
                 "Price (£)", "Image_link"])
         except:
@@ -263,7 +266,7 @@ class WaterstonesScraper:
             os.mkdir(f"{self.__raw_data_path}/{self.__query}")
         self.book_df.to_csv(f"{self.__raw_data_path}/{self.__query}/{self.__query}.csv")
 
-    def get_book_data(self) -> pd.DataFrame:
+    def get_all_book_data(self) -> pd.DataFrame:
         """Calls methods to scrape ISBN ID, author's name, book title, price in GBP,
         and book image source link. Stores data in DataFrame. 
 
@@ -296,6 +299,34 @@ class WaterstonesScraper:
         self.book_df = self.book_df.astype(str)
 
         return self.book_df
+    
+    def __get_language_page_links(self):
+        """Loads web driver and search query, before gathering all links to pages with language filters
+
+        Returns
+        -------
+        list
+            List of links for language-filtered results of the query.
+        """
+        self.__load_and_accept_cookies()
+        self.__search()
+        language_container = self.driver.find_element(by=By.XPATH, 
+            value="/html/body/div[1]/div[2]/div[3]/div[1]/div[2]/div[7]/div[2]/div")
+        language_list = language_container.find_elements(by=By.TAG_NAME, value="a")
+        for language in language_list:
+            language_link = language.get_attribute("href")
+            self.language_link_list.append(language_link)
+        self.language_link_list.pop()
+
+        return self.driver
+
+    def get_book_data_with_language_filter(self):
+        
+        language_link_list = self.__get_language_page_links()
+        for language_page in language_link_list:
+            self.__display_all_results()
+
+
 
     def save_book_data(self):
         """Save DataFrame in csv file and save images in images folder. 
@@ -316,10 +347,11 @@ if __name__ == "__main__":
     # driver = WaterstonesScraper(2)
 
     try:
-        df = driver.get_book_data()
-        driver.save_book_data()
-    except Exception:
-        print(Exception)
+        # df = driver.get_all_book_data()
+        # driver.save_book_data()
+        language_list = driver.get_book_data_with_language_filter()
+    except Exception as e:
+        print(e)
         driver.quit_browser()
         
 #%%
