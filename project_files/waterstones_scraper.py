@@ -273,6 +273,7 @@ class WaterstonesScraper:
             DataFrame of scraped data.
         """
         self.__get_all_book_links()
+        index = 0
         for book_link in self.link_list[:3]:
             self.driver.get(book_link)
             
@@ -290,7 +291,11 @@ class WaterstonesScraper:
                         "Price (£)" : price,
                         "Image_link" : image
                         }
-            self.book_df = self.book_df.append(book_dict, ignore_index=True)
+            df = pd.DataFrame(book_dict, index=[index])
+            self.book_df = pd.concat([self.book_df, df])
+            index += 1
+            #self.book_df = self.book_df.append(book_dict, ignore_index=True)
+        self.book_df = self.book_df.astype(str)
 
         return self.book_df
 
