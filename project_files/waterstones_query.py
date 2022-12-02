@@ -79,12 +79,37 @@ class QueryWaterstones(WaterstonesScraper):
 
         return self.driver
     
+    def create_DataFrame_of_page_data(self):
+        index = 0
+        page_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
+            "Language", "Price (£)", "Image_link"])
+        for book_link in self.list_of_book_links[:3]:
+            self.driver.get(book_link)
+            isbn = self.get_ISBN()
+            author = self.get_author()
+            title = self.get_title()
+            price = self.get_price()
+            image = self.get_image_link()
+            book_dict = {
+                        "ID" : isbn,
+                        "Timestamp" : time.ctime(), # timestamp of scraping.
+                        "Author" : author, 
+                        "Title" : title,
+                        "Language" : None,
+                        "Price (£)" : price,
+                        "Image_link" : image
+                        }
+            df = pd.DataFrame(book_dict, index=[index])
+            page_df = pd.concat([page_df, df])
+            index += 1
     
+        return page_df
+
 #%%
 if __name__ == "__main__":
     driver = QueryWaterstones()
     driver.load_and_accept_cookies()
     driver.search("jose saramago")
-    driver.get_language_filter_page_links()
+    driver.get_all_book_links_from_page()
+    df = driver.create_DataFrame_of_page_data()
 #%%
-english_df = pd.DataFrame()
