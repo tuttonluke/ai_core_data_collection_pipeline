@@ -1,5 +1,5 @@
 #%%
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -97,26 +97,30 @@ class WaterstonesScraper:
         return self.driver
     
     def display_all_results(self):
-        """Scrolls down to load all pages of results of a query.
+        """Scrolls down to load all pages of results of a query if there is more 
+        than one page.
 
         Returns
         -------
         webdriver.Edge
             Edge webdriver.
         """
-        number_of_pages = self.driver.find_element(by=By.XPATH, 
-            value="/html/body/div[1]/div[3]/div[2]/div[1]/div[2]/div[1]/div/div/span[2]")
-        number_of_pages_text = number_of_pages.text
-        number_of_pages_text = number_of_pages_text.replace('of', '')
-        number_of_pages_integer = int(number_of_pages_text)
-        print(f"Number of pages is {number_of_pages_integer}.")
-        page_counter = 0
-        while page_counter <= number_of_pages_integer:
-            self.scroll_to_bottom()
-            self.click_show_more()
-            time.sleep(2) # wait for next page of results to load
-            page_counter += 1
-        
+        try:
+            number_of_pages = self.driver.find_element(by=By.XPATH, 
+                value="/html/body/div[1]/div[3]/div[2]/div[1]/div[2]/div[1]/div/div/span[2]")
+            number_of_pages_text = number_of_pages.text
+            number_of_pages_text = number_of_pages_text.replace('of', '')
+            number_of_pages_integer = int(number_of_pages_text)
+            print(f"Number of pages is {number_of_pages_integer}.")
+            page_counter = 0
+            while page_counter <= number_of_pages_integer:
+                self.scroll_to_bottom()
+                self.click_show_more()
+                time.sleep(2) # wait for next page of results to load
+                page_counter += 1
+        except NoSuchElementException:
+            pass
+
         return self.driver
     
     def get_author(self) -> str:
@@ -200,6 +204,32 @@ class WaterstonesScraper:
         img_data = requests.get(img_url).content
         with open(file_path, "wb") as handler:
             handler.write(img_data)
+    
+    def create_DataFrame_of_page_data(self):
+        index = 0
+        page_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
+            "Language", "Price (£)", "Image_link"])
+        for book_link in self.list_of_book_links[:3]:
+            self.driver.get(book_link)
+            isbn = self.get_ISBN()
+            author = self.get_author()
+            title = self.get_title()
+            price = self.get_price()
+            image = self.get_image_link()
+            book_dict = {
+                        "ID" : isbn,
+                        "Timestamp" : time.ctime(), # timestamp of scraping.
+                        "Author" : author, 
+                        "Title" : title,
+                        "Language" : None,
+                        "Price (£)" : price,
+                        "Image_link" : image
+                        }
+            df = pd.DataFrame(book_dict, index=[index])
+            page_df = pd.concat([page_df, df])
+            index += 1
+    
+        return page_df
     
 #%%
 if __name__ == "__main__":
