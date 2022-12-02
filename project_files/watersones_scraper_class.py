@@ -119,6 +119,88 @@ class WaterstonesScraper:
         
         return self.driver
     
+    def get_author(self) -> str:
+        """Srapes the author's name.
+
+        Returns
+        -------
+        str
+            Name of the author.
+        """
+        author = self.driver.find_element(by=By.XPATH, 
+            value="//span[@itemprop='author']").text
+
+        return author
+
+    def get_title(self) -> str:
+        """Srapes the book title.
+
+        Returns
+        -------
+        str
+            Title of the book.
+        """
+        title = self.driver.find_element(by=By.XPATH, 
+            value="//span[@class='book-title']").text
+
+        return title
+
+    def get_ISBN(self) -> int:
+        """Scrapes ISBN (International Standard Book Number), a unique product identifier
+        used by publishers and booksellers. The ISBN identifies the specific title,
+        edition, and format.
+
+        Returns
+        -------
+        int
+            ISBN number.
+        """
+        isbn = self.driver.current_url[-13:]
+
+        return int(isbn)
+    
+    def get_price(self) -> float:
+        """Scrapes price in GBP.
+
+        Returns
+        -------
+        float
+            Item price.
+        """
+        price = self.driver.find_element(by=By.XPATH,
+            value="//b[@itemprop='price']").text
+        price = price.strip('£')
+
+        return float(price)
+    
+    def get_image_link(self) -> str:
+        """Scrapes links for book images.
+
+        Returns
+        -------
+        str
+            Source of image link.
+        """
+        img = self.driver.find_element(by=By.XPATH,
+            value="//img[@itemprop='image']")
+        img_src = img.get_attribute("src")
+
+        return img_src
+    
+    def download_img(self, img_url: str, file_path: str):
+        """Downloads image to current directory.
+
+        Parameters
+        ----------
+        img_url : str
+            URL of image to be downnloaded.
+        file_path : str
+            File path of location where the image is to be saved.
+        """
+        img_data = requests.get(img_url).content
+        with open(file_path, "wb") as handler:
+            handler.write(img_data)
+    
 #%%
 if __name__ == "__main__":
     driver = WaterstonesScraper()
