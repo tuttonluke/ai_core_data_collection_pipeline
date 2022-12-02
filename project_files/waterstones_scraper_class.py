@@ -15,6 +15,7 @@ class WaterstonesScraper:
     def __init__(self) -> None:
         try:
             self.driver = webdriver.Edge()
+            self.raw_data_path = r"C:\Users\tutto\OneDrive\Documents\Documents\AiCore\Projects\ai_core_data_collection_pipeline\project_files\raw_data"
         except:
             print("Query must be a string.")
     
@@ -231,16 +232,6 @@ class WaterstonesScraper:
     
         return page_df
     
-#%%
-if __name__ == "__main__":
-    driver = WaterstonesScraper()
-
-    try:
-        driver.load_and_accept_cookies()
-        driver.scroll_to_bottom()
     
-    except Exception as e:
-        print(e)
-        driver.quit_browser()
     
-
+# %%
