@@ -1,5 +1,5 @@
 #%%
-from watersones_scraper_class import WaterstonesScraper
+from waterstones_scraper_class import WaterstonesScraper
 from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -18,6 +18,8 @@ class QueryWaterstones(WaterstonesScraper):
         self.query = None
         self.dict_of_languages = {}
         self.list_of_book_links = []
+        self.language_filtered_DataFrame = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
+            "Language", "Price (£)", "Image_link"])
     
     def search(self, query) -> webdriver.Edge:
         """Searches given query in waterstones website searchbar.
@@ -79,37 +81,25 @@ class QueryWaterstones(WaterstonesScraper):
 
         return self.driver
     
-    def create_DataFrame_of_page_data(self):
-        index = 0
-        page_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
-            "Language", "Price (£)", "Image_link"])
-        for book_link in self.list_of_book_links[:3]:
-            self.driver.get(book_link)
-            isbn = self.get_ISBN()
-            author = self.get_author()
-            title = self.get_title()
-            price = self.get_price()
-            image = self.get_image_link()
-            book_dict = {
-                        "ID" : isbn,
-                        "Timestamp" : time.ctime(), # timestamp of scraping.
-                        "Author" : author, 
-                        "Title" : title,
-                        "Language" : None,
-                        "Price (£)" : price,
-                        "Image_link" : image
-                        }
-            df = pd.DataFrame(book_dict, index=[index])
-            page_df = pd.concat([page_df, df])
-            index += 1
+    def get_DataFrame_of_language_filtered_query_results(self):
+        for language in self.dict_of_languages:
+            self.driver.get(self.dict_of_languages[language])
+            self.display_all_results()
+            self.get_all_book_links_from_page()
+            page_df = self.create_DataFrame_of_page_data()
+            page_df["Language"] = language
+            self.language_filtered_DataFrame = pd.concat([self.language_filtered_DataFrame,
+            page_df])
     
-        return page_df
-
 #%%
 if __name__ == "__main__":
     driver = QueryWaterstones()
     driver.load_and_accept_cookies()
     driver.search("jose saramago")
-    driver.get_all_book_links_from_page()
-    df = driver.create_DataFrame_of_page_data()
+    driver.get_language_filter_page_links()
+    driver.get_DataFrame_of_language_filtered_query_results()
+
 #%%
+
+    # driver.get_all_book_links_from_page()
+    # df = driver.create_DataFrame_of_page_data()
