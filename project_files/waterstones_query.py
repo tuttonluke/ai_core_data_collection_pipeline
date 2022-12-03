@@ -12,8 +12,8 @@ import requests
 import time
 #%%
 class QueryWaterstones(WaterstonesScraper):
+    # ADD DOCSTRING
     def __init__(self) -> None:
-        
         super().__init__()
         self.query = None
         self.list_of_language_page_links = []
@@ -42,7 +42,14 @@ class QueryWaterstones(WaterstonesScraper):
         return self.driver
 
     def get_language_filter_page_links(self):
+        """Populates self.list_of_language_page_links with all the links to 
+        language-filtered query results.
 
+        Returns
+        -------
+        webdriver.Edge
+            Edge webdriver.
+        """
         # Find language section of the filter bar (not always in the same place!)
         search_filters = self.driver.find_elements(by=By.XPATH, 
             value="//div[@class='filter-header slide-trigger js-filter-trigger']") 
@@ -52,7 +59,7 @@ class QueryWaterstones(WaterstonesScraper):
                 language_tag = filter
         language_container = self.driver.execute_script("""
         return arguments[0].nextElementSibling""", language_tag)
-        
+        # find list of relevant links
         language_list = language_container.find_elements(by=By.TAG_NAME, value="a")
         for language in language_list:
             language_link = language.get_attribute("href")
@@ -85,11 +92,28 @@ class QueryWaterstones(WaterstonesScraper):
         return self.driver
     
     def get_language_name(self):
+        """Scrapes language name from language-filtered query results page.
+
+        Returns
+        -------
+        webdriver.Edge
+            Edge webdriver.
+        """
         language_name = self.driver.find_element(by=By.XPATH, 
             value="/html/body/div[1]/div[3]/div[3]/div[1]/div[1]/div/span")
         return language_name.text
     
     def create_DataFrame_of_page_data(self):
+        """Calls scraping methods to obtain ISBN, author name, book title,
+        price, and image link from the current page, returning the information
+        in a pandas DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame including all relevant data from the current page. Data
+            for language is assigned elsewhere.
+        """
         index = 0
         page_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
             "Language", "Price (£)", "Image_link"])
@@ -116,19 +140,21 @@ class QueryWaterstones(WaterstonesScraper):
         return page_df
     
     def get_DataFrame_of_language_filtered_query_results(self):
+        """Populates self.language_filtered_DataFrame with data from all
+        language-filtered query results.
+        """
         for language_link in self.list_of_language_page_links:
             self.driver.get(language_link)
             try:
                 language_name = self.get_language_name()
             except:
+                # this runs if the page does not identify language
                 language_name = None
             try:
                 self.get_all_book_links_from_page()
             except:
-                # only one book
-                # get current url
+                # this runs if there is only one book in the query search
                 current_url = self.driver.current_url
-                # insert it as the only link in self.list_of_book_links
                 self.list_of_book_links = [current_url]
             page_df = self.create_DataFrame_of_page_data()
             page_df["Language"] = language_name
@@ -136,11 +162,13 @@ class QueryWaterstones(WaterstonesScraper):
             page_df])
     
     def save_df_as_csv(self):
+        """Saves self.language_filtered_DataFrame to a .csv file in
+        a folder with the name of the search query, with the raw_data
+        folder.
+        """
         if not os.path.exists(f"{self.raw_data_path}/{self.query}"):
             os.mkdir(f"{self.raw_data_path}/{self.query}")
         self.language_filtered_DataFrame.to_csv(f"{self.raw_data_path}/{self.query}/{self.query}.csv")
-
-    
 #%%
 if __name__ == "__main__":
     author_list = ["jose saramago", "isabel allende", "j r r tolkein", "gabriel garcia marquez"]
@@ -151,7 +179,5 @@ if __name__ == "__main__":
         driver.get_language_filter_page_links()
         driver.get_DataFrame_of_language_filtered_query_results()
         driver.save_df_as_csv()
-
-
-
+    driver.quit_browser()
 # %%
