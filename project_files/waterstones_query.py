@@ -54,15 +54,12 @@ class QueryWaterstones(WaterstonesScraper):
         return arguments[0].nextElementSibling""", language_tag)
         
         language_list = language_container.find_elements(by=By.TAG_NAME, value="a")
-        print(len(language_list))
         for language in language_list:
             language_link = language.get_attribute("href")
-            self.list_of_book_links.append(language_link)
+            self.list_of_language_page_links.append(language_link)
         # remove link for "less" button if present (only present with more than 5 languages)
-        if len(self.list_of_book_links) > 6:
-            self.list_of_book_links.pop()
-
-        print(self.list_of_book_links)
+        if len(self.list_of_language_page_links) > 6:
+            self.list_of_language_page_links.pop()
 
         return self.driver
 
@@ -87,13 +84,54 @@ class QueryWaterstones(WaterstonesScraper):
 
         return self.driver
     
+    def get_language_name(self):
+        language_name = self.driver.find_element(by=By.XPATH, 
+            value="/html/body/div[1]/div[3]/div[3]/div[1]/div[1]/div/span")
+        return language_name.text
+    
+    def create_DataFrame_of_page_data(self):
+        index = 0
+        page_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
+            "Language", "Price (£)", "Image_link"])
+        for book_link in self.list_of_book_links[:3]:
+            self.driver.get(book_link)
+            isbn = self.get_ISBN()
+            author = self.get_author()
+            title = self.get_title()
+            price = self.get_price()
+            image = self.get_image_link()
+            book_dict = {
+                        "ID" : isbn,
+                        "Timestamp" : time.ctime(), # timestamp of scraping.
+                        "Author" : author, 
+                        "Title" : title,
+                        "Language" : None,
+                        "Price (£)" : price,
+                        "Image_link" : image
+                        }
+            df = pd.DataFrame(book_dict, index=[index])
+            page_df = pd.concat([page_df, df])
+            index += 1
+    
+        return page_df
+    
     def get_DataFrame_of_language_filtered_query_results(self):
-        for language in self.dict_of_languages:
-            self.driver.get(self.dict_of_languages[language])
-            self.display_all_results()
-            self.get_all_book_links_from_page()
+        for language_link in self.list_of_language_page_links:
+            self.driver.get(language_link)
+            try:
+                language_name = self.get_language_name()
+            except:
+                language_name = None
+            try:
+                self.get_all_book_links_from_page()
+            except:
+                # only one book
+                # get current url
+                current_url = self.driver.current_url
+                # insert it as the only link in self.list_of_book_links
+                self.list_of_book_links = [current_url]
             page_df = self.create_DataFrame_of_page_data()
-            page_df["Language"] = language
+            page_df["Language"] = language_name
             self.language_filtered_DataFrame = pd.concat([self.language_filtered_DataFrame,
             page_df])
     
@@ -104,22 +142,16 @@ class QueryWaterstones(WaterstonesScraper):
 
     
 #%%
-driver = QueryWaterstones()
-driver.load_and_accept_cookies()
-driver.search("jose saramago")
-driver.get_language_filter_page_links()
+if __name__ == "__main__":
+    author_list = ["jose saramago", "isabel allende", "j r r tolkein", "gabriel garcia marquez"]
+    for author in author_list:
+        driver = QueryWaterstones()
+        driver.load_and_accept_cookies()
+        driver.search(author)
+        driver.get_language_filter_page_links()
+        driver.get_DataFrame_of_language_filtered_query_results()
+        driver.save_df_as_csv()
 
-driver.quit_browser()
-#  if __name__ == "__main__":
-#     try:
-#         driver = QueryWaterstones()
-#         driver.load_and_accept_cookies()
-#         driver.search("gabriel garcia marquez")
-#         driver.get_language_filter_page_links()
-#         #driver.get_DataFrame_of_language_filtered_query_results()
-#         #driver.save_df_as_csv()
-#     except Exception as e:
-#         print(e)
-#         driver.quit_browser()
+
 
 # %%
