@@ -171,12 +171,13 @@ class QueryWaterstones(WaterstonesScraper):
         self.language_filtered_DataFrame.to_csv(f"{self.raw_data_path}/{self.query}/{self.query}.csv")
     
     def save_imgs_as_jpg(self):
+        """Saves images found in the Image_link column of self.language_filtered_DataFrame 
+        in images folder, in the folder with the name of the search query.
+        """
         os.mkdir(f"{self.raw_data_path}/{self.query}/images")
         for img_url in self.language_filtered_DataFrame["Image_link"]:
             isbn = img_url[-17:-4]
             self.download_img(img_url, f"{self.raw_data_path}/{self.query}/images/{isbn}.jpg")
-
-
 #%%
 if __name__ == "__main__":
     author_list = ["jose saramago", "isabel allende", "gabriel garcia marquez"]
