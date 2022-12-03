@@ -169,9 +169,17 @@ class QueryWaterstones(WaterstonesScraper):
         if not os.path.exists(f"{self.raw_data_path}/{self.query}"):
             os.mkdir(f"{self.raw_data_path}/{self.query}")
         self.language_filtered_DataFrame.to_csv(f"{self.raw_data_path}/{self.query}/{self.query}.csv")
+    
+    def save_imgs_as_jpg(self):
+        os.mkdir(f"{self.raw_data_path}/{self.query}/images")
+        for img_url in self.language_filtered_DataFrame["Image_link"]:
+            isbn = img_url[-17:-4]
+            self.download_img(img_url, f"{self.raw_data_path}/{self.query}/images/{isbn}.jpg")
+
+
 #%%
 if __name__ == "__main__":
-    author_list = ["jose saramago", "isabel allende", "j r r tolkein", "gabriel garcia marquez"]
+    author_list = ["jose saramago", "isabel allende", "gabriel garcia marquez"]
     for author in author_list:
         driver = QueryWaterstones()
         driver.load_and_accept_cookies()
@@ -179,5 +187,6 @@ if __name__ == "__main__":
         driver.get_language_filter_page_links()
         driver.get_DataFrame_of_language_filtered_query_results()
         driver.save_df_as_csv()
+        driver.save_imgs_as_jpg()
     driver.quit_browser()
 # %%
