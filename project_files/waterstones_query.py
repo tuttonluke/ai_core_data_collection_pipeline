@@ -2,7 +2,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from waterstones_scraper_class import WaterstonesScraper
+from project_files.waterstones_scraper_class import WaterstonesScraper
 import os
 import pandas as pd
 import time
@@ -60,7 +60,7 @@ class QueryWaterstones(WaterstonesScraper):
 
         return self.driver
 
-    def get_language_filter_page_links(self):
+    def get_language_filter_page_links(self) -> webdriver.Edge:
         """Populates self.list_of_language_page_links with all the links to 
         language-filtered query results.
 
@@ -89,7 +89,7 @@ class QueryWaterstones(WaterstonesScraper):
 
         return self.driver
 
-    def get_all_book_links_from_page(self):
+    def get_all_book_links_from_page(self) -> webdriver.Edge:
         """Populates self.list_of_book_links with all the links to books on the
         current page.
 
@@ -110,19 +110,19 @@ class QueryWaterstones(WaterstonesScraper):
 
         return self.driver
     
-    def get_language_name(self):
+    def get_language_name(self) -> str:
         """Scrapes language name from language-filtered query results page.
 
         Returns
         -------
-        webdriver.Edge
-            Edge webdriver.
+        language_name.test : str
+                Name of the language which is filtering search results.
         """
         language_name = self.driver.find_element(by=By.XPATH, 
             value="/html/body/div[1]/div[3]/div[3]/div[1]/div[1]/div/span")
         return language_name.text
     
-    def create_DataFrame_of_page_data(self):
+    def create_DataFrame_of_page_data(self) -> pd.DataFrame:
         """Calls scraping methods to obtain ISBN, author name, book title,
         price, and image link from the current page, returning the information
         in a pandas DataFrame.
