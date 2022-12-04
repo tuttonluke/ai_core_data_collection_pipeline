@@ -2,16 +2,23 @@
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import os
-import pandas as pd
 import requests
 import time
 #%%
 class WaterstonesScraper:
+    """This class generates a web scraper to scrape key data from the
+    popular bookseller Waterstone's website. This is a parent class which contains
+    generic methods not specific to a particular search query.
 
+    Attributes
+    ----------
+    self.driver : webdriver.Edge()
+                  Instance of a Microsoft Edge webdriver.
+    self.raw_data_path : str
+                         File path to which scraped data will be saved.
+    """
     def __init__(self) -> None:
         try:
             self.driver = webdriver.Edge()
