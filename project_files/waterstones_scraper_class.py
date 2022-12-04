@@ -15,9 +15,9 @@ class WaterstonesScraper:
     Attributes
     ----------
     self.driver : webdriver.Edge()
-                  Instance of a Microsoft Edge webdriver.
+                Instance of a Microsoft Edge webdriver.
     self.raw_data_path : str
-                         File path to which scraped data will be saved.
+                File path to which scraped data will be saved.
     """
     def __init__(self) -> None:
         try:
