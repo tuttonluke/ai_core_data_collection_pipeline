@@ -1,18 +1,37 @@
 #%%
-from waterstones_scraper_class import WaterstonesScraper
-from selenium.common.exceptions import TimeoutException
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from waterstones_scraper_class import WaterstonesScraper
 import os
 import pandas as pd
-import requests
 import time
 #%%
 class QueryWaterstones(WaterstonesScraper):
-    # ADD DOCSTRING
+    """This class inherits from the WaterstonesScraper class, and includes methods relevant
+    to specific search queries. All relevant data about books appearing in the search result
+    are stored in the self.language_filtered_DataFrame attribute, which is saved as a .csv file
+    along with front cover images at the desired file path.
+
+    Parameters
+    ----------
+    WaterstonesScraper : class
+        Parent class containing methods not specific to a particular search query.
+    
+    Attributes
+    ----------
+    self.query : None
+                Attribute where search query will be stored.
+    self.list_of_language_page_links : list
+                Attribute where list of links for language-filtered search pages 
+                will be stored.
+    self.list_of_book_links : list
+                Attribute where list of links for individual books from a search query will
+                be stored.
+    self.language_filtered_DataFrame : pd.DataFrame
+                DataFrame where all relevant data about each book in a search query 
+                will be stored. 
+    """
     def __init__(self) -> None:
         super().__init__()
         self.query = None
