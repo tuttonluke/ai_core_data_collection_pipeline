@@ -34,17 +34,18 @@ class WaterstonesScraper:
                           File path in which to save raw data.
         link_list : list
                     List of links of query results.
-        language_link_list : list
-                            List of links of language-filtered pages of query results.
+        language_link_dict : dict
+                            Dictionary of links of language-filtered pages of query results. Keys are language
+                            names, values are page links.
         book_df : DataFrame
-                  Dataframe of query result data. 
+                  Dataframe of query result data.
         """
         try:
             self.driver = webdriver.Edge()
             self.__query = query.replace(' ', '_').lower()
             self.__raw_data_path = r"C:\Users\tutto\OneDrive\Documents\Documents\AiCore\Projects\ai_core_data_collection_pipeline\project_files\raw_data"
             self.link_list = []
-            self.language_link_list = []
+            self.language_link_dict = {}
             self.book_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
                 "Price (£)", "Image_link"])
         except:
@@ -79,11 +80,6 @@ class WaterstonesScraper:
     
     def __search(self) -> webdriver.Edge:
         """Searches given query in website searchbar.
-
-        Parameters
-        ----------
-        query : str, int, float
-            Query to be searched.
 
         Returns
         -------
@@ -289,6 +285,7 @@ class WaterstonesScraper:
                         "Timestamp" : time.ctime(), # timestamp of scraping.
                         "Author" : author, 
                         "Title" : title,
+                        "Language" : None,
                         "Price (£)" : price,
                         "Image_link" : image
                         }
@@ -300,33 +297,37 @@ class WaterstonesScraper:
 
         return self.book_df
     
-    def __get_language_page_links(self):
+    def get_language_page_links(self):
         """Loads web driver and search query, before gathering all links to pages with language filters
-
-        Returns
-        -------
-        list
-            List of links for language-filtered results of the query.
         """
         self.__load_and_accept_cookies()
         self.__search()
+        # click more button
+        more_button = self.driver.find_element(by=By.XPATH, 
+            value="/html/body/div[1]/div[2]/div[3]/div[1]/div[2]/div[7]/div[2]/div/a")
+        more_button.click()
         language_container = self.driver.find_element(by=By.XPATH, 
             value="/html/body/div[1]/div[2]/div[3]/div[1]/div[2]/div[7]/div[2]/div")
         language_list = language_container.find_elements(by=By.TAG_NAME, value="a")
         for language in language_list:
+            language_name = language.text
             language_link = language.get_attribute("href")
-            self.language_link_list.append(language_link)
-        self.language_link_list.pop()
-
+            self.language_link_dict[language_name] = language_link
+        # remove information concerned with the 'less' button
+        self.language_link_dict.pop('Less')
+        print(self.language_link_dict)
+        
         return self.driver
 
     def get_book_data_with_language_filter(self):
         
-        language_link_list = self.__get_language_page_links()
-        for language_page in language_link_list:
-            self.__display_all_results()
-
-
+        self.get_language_page_links()
+        for language in self.language_link_dict.keys():
+            
+            self.driver.get(self.language_link_dict[language])
+            # self.__display_all_results()
+            self.get_all_book_data()
+            self.book_df["Language"] = language
 
     def save_book_data(self):
         """Save DataFrame in csv file and save images in images folder. 
@@ -349,9 +350,18 @@ if __name__ == "__main__":
     try:
         # df = driver.get_all_book_data()
         # driver.save_book_data()
-        language_list = driver.get_book_data_with_language_filter()
+        driver.get_book_data_with_language_filter()
+        # language_list = driver.get_book_data_with_language_filter()
     except Exception as e:
         print(e)
         driver.quit_browser()
         
 #%%
+
+language_dict = {'English': 'https://www.waterstones.com/books/search/term/jose+saramago/facet/347', 
+'French': 'https://www.waterstones.com/books/search/term/jose+saramago/facet/352', 
+'Spanish': 'https://www.waterstones.com/books/search/term/jose+saramago/facet/353', 
+'Italian': 'https://www.waterstones.com/books/search/term/jose+saramago/facet/361', 
+'German': 'https://www.waterstones.com/books/search/term/jose+saramago/facet/362', 
+'Portuguese': 'https://www.waterstones.com/books/search/term/jose+saramago/facet/393'}
+
