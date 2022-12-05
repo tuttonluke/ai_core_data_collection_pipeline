@@ -30,4 +30,4 @@ Technologies / Skills:
     - pandas.testing
 - Project Structure for Software Development
 
-Unit testing of public methods of the WaterstonesScraper class was implemented using the python unittest framework. The get_book_data method of the WaterstonesScraper class returns scraped data in the form of a pandas DataFrame, so the pandas inbuilt testing framework was also used.
+Unit testing of public methods of the QueryWaterstones class was implemented using the python unittest framework. The get_DataFrame_of_language_filtered_query_results method of the WaterstonesScraper class returns scraped data in the form of a pandas DataFrame, so the pandas inbuilt testing framework was also used.
