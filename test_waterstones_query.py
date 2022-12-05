@@ -39,6 +39,17 @@ class WaterstonesQueryTestCase(TestCase):
         """_summary_
         """
         assert all(self.test_df.dtypes)
+    
+    def test_IDs(self):
+        """_summary_
+        """
+        expected = pd.Series([9780099573586, 9782020403436, 9788490628720,
+                        9788807721694, 9783442742868, 9789896602291
+                        ]).astype(str).rename("ID")
+        actual = self.test_df["ID"]
+        assert_series_equal(expected, actual)
+
+
 #%%
 if __name__ == "__main__":
     unittest.main(argv=[''], exit=False)
