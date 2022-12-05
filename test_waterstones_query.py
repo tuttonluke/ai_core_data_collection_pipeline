@@ -35,20 +35,32 @@ class WaterstonesQueryTestCase(TestCase):
 
         return super().setUp()
     
+    @unittest.skip("Skip")
     def test_dtypes(self):
-        """_summary_
+        """Asserts all dtypes are True.
         """
         assert all(self.test_df.dtypes)
     
+    @unittest.skip("Skip")
     def test_IDs(self):
-        """_summary_
+        """Tests expected data in the ID column of the dataframe returned from the
+        web driver object.
         """
         expected = pd.Series([9780099573586, 9782020403436, 9788490628720,
                         9788807721694, 9783442742868, 9789896602291
                         ]).astype(str).rename("ID")
         actual = self.test_df["ID"]
         assert_series_equal(expected, actual)
-
+    
+    def test_author(self):
+        """Tests expected data in the Author column of the dataframe returned from the
+        web driver object.
+        """
+        expected = pd.Series(["Jose Saramago" for i in range(6)]).astype(str).rename("Author")
+        actual = self.test_df["Author"]
+        assert_series_equal(expected, actual)
+    
+    
 
 #%%
 if __name__ == "__main__":
