@@ -25,7 +25,7 @@ class WaterstonesScraper:
             self.raw_data_path = r"C:\Users\tutto\OneDrive\Documents\Documents\AiCore\Projects\ai_core_data_collection_pipeline\project_files\raw_data"
         except:
             print("Query must be a string.")
-    
+
     def load_page(self) -> webdriver.Edge:
         """Loads the waterstones.com homepage.
 
@@ -73,6 +73,7 @@ class WaterstonesScraper:
             Edge webdriver.
         """
         self.load_page()
+        time.sleep(2)
         self.accept_cookies()
 
         return self.driver
@@ -212,4 +213,4 @@ class WaterstonesScraper:
         img_data = requests.get(img_url).content
         with open(file_path, "wb") as handler:
             handler.write(img_data)
-# %%
+#%%
