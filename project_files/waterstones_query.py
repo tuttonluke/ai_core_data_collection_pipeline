@@ -2,7 +2,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from project_files.waterstones_scraper_class import WaterstonesScraper
+from waterstones_scraper_class import WaterstonesScraper
 import os
 import pandas as pd
 import time
@@ -217,3 +217,4 @@ if __name__ == "__main__":
         driver.save_imgs_as_jpg()
     driver.quit_browser()
 #%%
+
