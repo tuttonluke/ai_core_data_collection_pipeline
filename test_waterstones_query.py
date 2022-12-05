@@ -6,7 +6,7 @@ import pandas as pd
 import unittest
 #%%
 class WaterstonesQueryTestCase(TestCase):
-    """_summary_
+    """Test class to test the output of the WaterstonesScraper class.
     """
     @classmethod
     def setUpClass(cls) -> None:
@@ -35,13 +35,13 @@ class WaterstonesQueryTestCase(TestCase):
 
         return super().setUp()
     
-    @unittest.skip("Skip")
+    # @unittest.skip("Skip")
     def test_dtypes(self):
         """Asserts all dtypes are True.
         """
         assert all(self.test_df.dtypes)
     
-    @unittest.skip("Skip")
+    # @unittest.skip("Skip")
     def test_IDs(self):
         """Tests expected data in the ID column of the dataframe returned from the
         web driver object.
@@ -52,6 +52,7 @@ class WaterstonesQueryTestCase(TestCase):
         actual = self.test_df["ID"]
         assert_series_equal(expected, actual)
     
+    # @unittest.skip("Skip")
     def test_author(self):
         """Tests expected data in the Author column of the dataframe returned from the
         web driver object.
@@ -59,9 +60,6 @@ class WaterstonesQueryTestCase(TestCase):
         expected = pd.Series(["Jose Saramago" for i in range(6)]).astype(str).rename("Author")
         actual = self.test_df["Author"]
         assert_series_equal(expected, actual)
-    
-    
-
 #%%
 if __name__ == "__main__":
     unittest.main(argv=[''], exit=False)
