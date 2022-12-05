@@ -183,9 +183,9 @@ class QueryWaterstones(WaterstonesScraper):
             page_df = self.create_DataFrame_of_page_data()
             page_df["Language"] = language_name
             self.language_filtered_DataFrame = pd.concat([self.language_filtered_DataFrame,
-            page_df])
+            page_df], ignore_index=True)
         
-        return self.language_filtered_DataFrame
+        return self.language_filtered_DataFrame.astype(str)
     
     def save_df_as_csv(self):
         """Saves self.language_filtered_DataFrame to a .csv file in
@@ -216,4 +216,4 @@ if __name__ == "__main__":
         driver.save_df_as_csv()
         driver.save_imgs_as_jpg()
     driver.quit_browser()
-# %%
+#%%
