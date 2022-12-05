@@ -129,14 +129,14 @@ class QueryWaterstones(WaterstonesScraper):
 
         Returns
         -------
-        pd.DataFrame
+        page_df : pd.DataFrame
             DataFrame including all relevant data from the current page. Data
             for language is assigned elsewhere.
         """
         index = 0
         page_df = pd.DataFrame(columns=["ID", "Timestamp", "Author", "Title", 
             "Language", "Price (£)", "Image_link"])
-        for book_link in self.list_of_book_links[:3]:
+        for book_link in self.list_of_book_links[:1]:
             self.driver.get(book_link)
             isbn = self.get_ISBN()
             author = self.get_author()
@@ -161,6 +161,11 @@ class QueryWaterstones(WaterstonesScraper):
     def get_DataFrame_of_language_filtered_query_results(self):
         """Populates self.language_filtered_DataFrame with data from all
         language-filtered query results.
+
+        Returns
+        -------
+        self.language_filtered_DataFrame : pd.DataFrame
+            Returns attribute self.language_filtered_DataFrame.
         """
         for language_link in self.list_of_language_page_links:
             self.driver.get(language_link)
@@ -179,6 +184,8 @@ class QueryWaterstones(WaterstonesScraper):
             page_df["Language"] = language_name
             self.language_filtered_DataFrame = pd.concat([self.language_filtered_DataFrame,
             page_df])
+        
+        return self.language_filtered_DataFrame
     
     def save_df_as_csv(self):
         """Saves self.language_filtered_DataFrame to a .csv file in
