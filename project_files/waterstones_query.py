@@ -207,9 +207,9 @@ class QueryWaterstones(WaterstonesScraper):
 #%%
 if __name__ == "__main__":
     author_list = ["jose saramago", "isabel allende", "gabriel garcia marquez"]
-    driver = QueryWaterstones()
-    driver.load_and_accept_cookies()
     for author in author_list:
+        driver = QueryWaterstones()
+        driver.load_and_accept_cookies()
         driver.search(author)
         driver.get_language_filter_page_links()
         driver.get_DataFrame_of_language_filtered_query_results()
@@ -217,4 +217,3 @@ if __name__ == "__main__":
         driver.save_imgs_as_jpg()
     driver.quit_browser()
 #%%
-

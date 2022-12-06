@@ -73,7 +73,6 @@ class WaterstonesScraper:
             Edge webdriver.
         """
         self.load_page()
-        time.sleep(2)
         self.accept_cookies()
 
         return self.driver
