@@ -208,7 +208,7 @@ class QueryWaterstonesHeadless(WaterstonesScraperHeadless):
 if __name__ == "__main__":
     author_list = ["jose saramago", "isabel allende", "gabriel garcia marquez"]
     for author in author_list:
-        driver = QueryWaterstonesHeadless(headless=False)
+        driver = QueryWaterstonesHeadless(headless=True)
         driver.load_and_accept_cookies()
         driver.search(author)
         driver.get_language_filter_page_links()
