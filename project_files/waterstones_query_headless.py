@@ -32,7 +32,7 @@ class QueryWaterstonesHeadless(WaterstonesScraperHeadless):
                 DataFrame where all relevant data about each book in a search query 
                 will be stored. 
     """
-    def __init__(self, headless=True) -> None:
+    def __init__(self,headless=True) -> None:
         super().__init__(headless=headless)
         self.query = None
         self.list_of_language_page_links = []
@@ -205,8 +205,16 @@ class QueryWaterstonesHeadless(WaterstonesScraperHeadless):
             isbn = img_url[-17:-4]
             self.download_img(img_url, f"{self.raw_data_path}/{self.query}/images/{isbn}.jpg")
 #%%
-if __name__ == "__main__":
-    author_list = ["jose saramago", "isabel allende", "gabriel garcia marquez"]
+def run_the_scraper():
+    author_list = []
+    while True:
+        author = input("Enter author, or press ENTER to proceed: ")
+        if author != "":
+            author_list.append(author)
+        else:
+            break
+    
+    print(author_list)
     for author in author_list:
         driver = QueryWaterstonesHeadless(headless=True)
         driver.load_and_accept_cookies()
@@ -215,5 +223,7 @@ if __name__ == "__main__":
         driver.get_DataFrame_of_language_filtered_query_results()
         driver.save_df_as_csv()
         driver.save_imgs_as_jpg()
-    driver.quit_browser()
+    driver.quit_browser()    
 #%%
+if __name__ == "__main__":
+    run_the_scraper()
