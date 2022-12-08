@@ -207,6 +207,10 @@ class QueryWaterstonesHeadless(WaterstonesScraperHeadless):
             self.download_img(img_url, f"{self.raw_data_path}/{self.query}/images/{isbn}.jpg")
 #%%
 def run_the_scraper():
+    """The user inputs desired search queries one at a time which are iteratively appended to the author_list list.
+    The function then instantiates the QueryWaterstonesHeadless class for each query and calls all relevant methods
+    to scrape and save desired data.
+    """
     author_list = []
     while True:
         author = input("Enter author, or press ENTER to proceed: ")
