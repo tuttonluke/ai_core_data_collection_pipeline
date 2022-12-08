@@ -23,7 +23,7 @@ Further methods for scraping key data from the Waterstones website were develope
 
 The scraper is run as intended by an instance of the function run_the_scraper, which requires the user to input a list of authors which will be searched:
 
-![run_the_scraper screenshot](project_files\screenshots\run_the_scraper.png?raw=true)
+![run_the_scraper screenshot](ai_core_data_collection_pipeline\project_files\screenshots\run_the_scraper.png?raw=true)
 
 ## Milestone 3: Documentation and Testing
 Technologies / Skills:
