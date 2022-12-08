@@ -99,6 +99,7 @@ class QueryWaterstonesHeadless(WaterstonesScraperHeadless):
             Chrome webdriver.
         """
         self.list_of_book_links = []
+        self.display_all_results()
         book_container = self.driver.find_element(by=By.XPATH, 
             value="//div[@class='search-results-list']")
         book_list = book_container.find_elements(by=By.XPATH, value="./div")
