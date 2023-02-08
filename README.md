@@ -1,6 +1,6 @@
 # Data Collection Pipeline
 
-Implementation of a web scraper that uses Selenium scrapes information from all search results of a search query to the website of British bookseller Waterstones (https://www.waterstones.com/). The scraper sorts the results by language of publication, and returns the information in the form of a csv file and jpg images of all front covers. The project follows a CI/CD workflow using GitHub Actions which automatically pushes a Docker image to my [Docker Hub profile](https://hub.docker.com/u/tuttonluke).
+Implementation of a web scraper that uses Selenium to scrape information from all results of a search query to the website of bookseller Waterstones (https://www.waterstones.com/). The scraper sorts the results by language of publication, and returns the information in the form of a csv file and jpg images of all front covers. The project follows a CI/CD workflow using GitHub Actions which automatically pushes a Docker image to my [Docker Hub profile](https://hub.docker.com/u/tuttonluke).
 
 The scraper can be implemented by running the [waterstones_query_headless.py](https://github.com/tuttonluke/aicore_data_collection_pipeline_project/blob/main/project_files/waterstones_query_headless.py) file, or by pulling and running the Docker image found [here](https://hub.docker.com/r/tuttonluke/waterstones_scraper) with the following commands:
 
