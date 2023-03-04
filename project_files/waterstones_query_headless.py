@@ -190,7 +190,7 @@ class QueryWaterstonesHeadless(WaterstonesScraperHeadless):
     
     def save_df_as_csv(self):
         """Saves self.language_filtered_DataFrame to a .csv file in
-        a folder with the name of the search query, with the raw_data
+        a folder with the name of the search query, within the raw_data
         folder.
         """
         if not os.path.exists(f"{self.raw_data_path}/{self.query}"):
