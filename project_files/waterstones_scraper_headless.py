@@ -38,8 +38,8 @@ class WaterstonesScraperHeadless:
         else:
             self.driver = webdriver.Chrome()
         
-        self.raw_data_path = "project_files/raw_data" # for Docker
-        # self.raw_data_path = "raw_data" # for local running
+        # self.raw_data_path = "project_files/raw_data" # for Docker
+        self.raw_data_path = "raw_data" # for local running
 
     def load_page(self) -> webdriver.Chrome:
         """Loads the waterstones.com homepage.
